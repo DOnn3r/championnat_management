@@ -1,7 +1,9 @@
 package com.fifa_api.endpoints.mappers;
 
+import com.fifa_api.dao.mappers.ClubMapper;
 import com.fifa_api.endpoints.rest.ClubRest;
 import com.fifa_api.models.Club;
+import com.fifa_api.models.Coach;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -10,10 +12,15 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 public class ClubRestMapper implements Function<Club, ClubRest> {
+    private final ClubMapper clubMapper;
     private final CoachRestMapper coachRestMapper;
 
     @Override
     public ClubRest apply(Club club) {
+        if (club == null) {
+            return null;
+        }
+
         return new ClubRest(
                 club.getClubId(),
                 club.getClubName(),
@@ -24,16 +31,21 @@ public class ClubRestMapper implements Function<Club, ClubRest> {
         );
     }
 
-    public ClubRest toClubRest(Club club) {
-        ClubRest clubRest = new ClubRest();
+    public Club toClubModel(ClubRest clubRest) {
+        if (clubRest == null) {
+            return null;
+        }
 
-        clubRest.setId(club.getClubId());
-        clubRest.setName(club.getClubName());
-        clubRest.setAcronym(club.getClubAcronym());
-        clubRest.setYearCreation(club.getCreationYear());
-        clubRest.setStadium(club.getStadium());
-        clubRest.setCoach(coachRestMapper.apply(club.getCoach()));
+        Club club = new Club();
+        club.setClubId(clubRest.getId());
+        club.setClubName(clubRest.getName());
+        club.setClubAcronym(clubRest.getAcronym());
+        club.setCreationYear(clubRest.getYearCreation());
+        club.setStadium(clubRest.getStadium());
 
-        return clubRest;
+        Coach coach = coachRestMapper.toCoachModel(clubRest.getCoach());
+        club.setCoach(coach);
+
+        return club;
     }
 }
