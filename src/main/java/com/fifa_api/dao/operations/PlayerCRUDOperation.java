@@ -3,6 +3,7 @@ package com.fifa_api.dao.operations;
 import com.fifa_api.dao.DbConnection;
 import com.fifa_api.dao.mappers.PlayerMapper;
 import com.fifa_api.models.Player;
+import com.fifa_api.services.exceptions.ServerException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Repository;
@@ -67,18 +68,44 @@ public class PlayerCRUDOperation implements CRUD<Player> {
 
     @Override
     public List<Player> saveAll(List<Player> players) {
-        String sql = "insert into joueur (id_joueur, nom, numero, poste, nationalite, age, id_club)\n" +
-                "values (?, ?, ?, ?, ?, ?, ?)\n" +
-                "on conflict (id_joueur) \n" +
-                "do update set\n" +
-                "    nom = excluded.nom,\n" +
-                "    numero = excluded.numero,\n" +
-                "    poste = excluded.poste,\n" +
-                "    nationalite = excluded.nationalite,\n" +
-                "    age = excluded.age\n" +
-                "returning id_joueur, nom, numero, poste, nationalite, age";
+        String sql = "insert into joueur (id_joueur, nom, numero, poste, nationalite, age) " +
+                "values (?, ?, ?, ?, ?, ?) " +
+                "on CONFLICT (id_joueur) do update set " +
+                "nom = excluded.nom, " +
+                "numero = excluded.numero, " +
+                "poste = excluded.poste, " +
+                "nationalite = excluded.nationalite, " +
+                "age = excluded.age " +
+                "returning id_joueur";
 
-        throw new UnsupportedOperationException("Not supported yet.");
+        try (Connection con = datasource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            List<Player> savedPlayers = new ArrayList<>();
+
+            for (Player player : players) {
+                // Si nouveau joueur, génère un UUID
+                if (player.getPlayerId() == null) {
+                    player.setPlayerId(UUID.randomUUID());
+                }
+
+                ps.setObject(1, player.getPlayerId(), Types.OTHER);
+                ps.setString(2, player.getPlayerName());
+                ps.setInt(3, player.getPlayerNumber());
+                ps.setObject(4, player.getPost(), Types.OTHER);
+                ps.setString(5, player.getPlayerNationality());
+                ps.setInt(6, player.getPlayerAge());
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        savedPlayers.add(player);
+                    }
+                }
+            }
+            return savedPlayers;
+        } catch (SQLException e) {
+            throw new ServerException(e);
+        }
     }
 
     @SneakyThrows
