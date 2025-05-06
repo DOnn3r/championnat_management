@@ -23,8 +23,10 @@ public class PlayerCRUDOperation implements CRUD<Player> {
     public List<Player> getAll(Integer page, Integer size) {
         List<Player> players = new ArrayList<>();
 
-        String sql = "select id_joueur, nom, numero, poste, nationalite, age, id_club\n" +
-                "from joueur limit ? offset ?";
+        String sql = """
+            select id_joueur, nom, numero, poste, nationalite, age, id_club
+            from joueur limit ? offset ?
+        """;
 
         try(Connection con = datasource.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {
@@ -47,8 +49,10 @@ public class PlayerCRUDOperation implements CRUD<Player> {
     @Override
     public Player getById(UUID id) {
         Player player = null;
-        String sql = "select id_joueur, nom, numero, poste, nationalite, age, id_club " +
-                "from joueur where id_joueur = ?";
+        String sql = """
+            select id_joueur, nom, numero, poste, nationalite, age, id_club
+            from joueur where id_joueur = ?
+        """;
 
         try(Connection con = datasource.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {
@@ -68,15 +72,17 @@ public class PlayerCRUDOperation implements CRUD<Player> {
 
     @Override
     public List<Player> saveAll(List<Player> players) {
-        String sql = "insert into joueur (id_joueur, nom, numero, poste, nationalite, age) " +
-                "values (?, ?, ?, ?, ?, ?) " +
-                "on CONFLICT (id_joueur) do update set " +
-                "nom = excluded.nom, " +
-                "numero = excluded.numero, " +
-                "poste = excluded.poste, " +
-                "nationalite = excluded.nationalite, " +
-                "age = excluded.age " +
-                "returning id_joueur";
+        String sql = """
+            insert into joueur (id_joueur, nom, numero, poste, nationalite, age)
+            values (?, ?, ?, ?, ?, ?)
+            on CONFLICT (id_joueur) do update set
+            nom = excluded.nom,
+            numero = excluded.numero,
+            poste = excluded.poste,
+            nationalite = excluded.nationalite,
+            age = excluded.age
+            returning id_joueur
+        """;
 
         try (Connection con = datasource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -112,8 +118,10 @@ public class PlayerCRUDOperation implements CRUD<Player> {
     public List<Player> finPlayersByIdClub(UUID idClub) {
         List<Player> players = new ArrayList<>();
 
-        String sql = "select id_joueur, nom, numero, poste, nationalite, age, id_club\n" +
-                "from joueur where id_club = ?";
+        String sql = """
+            select id_joueur, nom, numero, poste, nationalite, age, id_club
+            from joueur where id_club = ?
+        """;
 
         try(Connection con = datasource.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {

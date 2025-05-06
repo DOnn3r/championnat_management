@@ -26,8 +26,10 @@ public class SeasonCRUDOperation implements CRUD<Season> {
     public List<Season> getAll(Integer page, Integer size) {
         List<Season> seasons = new ArrayList<>();
 
-        String sql = "select id_saison, year, season_year, status " +
-                "from saison limit ? offset ?";
+        String sql = """
+            select id_saison, year, season_year, status
+            from saison limit ? offset ?
+        """;
 
         try(Connection con = datasource.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {

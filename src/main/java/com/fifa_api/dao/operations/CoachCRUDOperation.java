@@ -23,8 +23,7 @@ public class CoachCRUDOperation implements CRUD<Coach> {
     public List<Coach> getAll(Integer page, Integer size) {
         List<Coach> coaches = new ArrayList<>();
 
-        String sql = "select id_entraineur, nom, nationalite, age, id_club \n" +
-                "from entraineur limit ? offset ?";
+        String sql = "select id_entraineur, nom, nationalite, age, id_club from entraineur limit ? offset ?";
 
         try(Connection con = datasource.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {
@@ -70,12 +69,14 @@ public class CoachCRUDOperation implements CRUD<Coach> {
 
     @Override
     public List<Coach> saveAll(List<Coach> coaches) {
-        String sql = "insert into entraineur (id_entraineur, nom, nationalite, id_club) " +
-                "values (?, ?, ?, ?) " +
-                "on conflict (id_entraineur) do update set " +
-                "nom = EXCLUDED.nom, " +
-                "nationalite = EXCLUDED.nationalite, " +
-                "id_club = EXCLUDED.id_club";
+        String sql = """
+            insert into entraineur (id_entraineur, nom, nationalite, id_club)
+            values (?, ?, ?, ?)
+            on conflict (id_entraineur) do update set
+            nom = excluded.nom,
+            nationalite = EXCLUDED.nationalite,
+            id_club = EXCLUDED.id_club
+        """;
 
         try (Connection con = datasource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

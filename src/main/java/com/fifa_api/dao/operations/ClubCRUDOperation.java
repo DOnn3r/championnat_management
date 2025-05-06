@@ -28,8 +28,9 @@ public class ClubCRUDOperation implements CRUD<Club> {
     public List<Club> getAll(Integer page, Integer size) {
         List<Club> clubs = new ArrayList<>();
 
-        String sql = "select id_club, nom, acronyme, annee_creation, nom_stade, id_championnat " +
-                "from club limit ? offset ?";
+        String sql = """
+            select id_club, nom, acronyme, annee_creation, nom_stade, id_championnat from club limit ? offset ?
+        """;
 
         try(Connection con = datasource.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {
@@ -51,8 +52,10 @@ public class ClubCRUDOperation implements CRUD<Club> {
     public Club getById(UUID id) {
         Club club = null;
 
-        String sql = "select id_club, nom, acronyme, annee_creation, nom_stade, id_championnat " +
-                "from club where id_club = ?";
+        String sql = """
+            select id_club, nom, acronyme, annee_creation, nom_stade, id_championnat
+            from club where id_club = ?
+            """;
 
         try(Connection con = datasource.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {
@@ -79,13 +82,15 @@ public class ClubCRUDOperation implements CRUD<Club> {
 
         coachCRUDOperation.saveAll(coaches);
 
-        String sql = "insert into club (id_club, nom, acronyme, annee_creation, nom_stade) " +
-                "values (?, ?, ?, ?, ?) " +
-                "on conflict (id_club) DO update set " +
-                "nom = excluded.nom, " +
-                "acronyme = excluded.acronyme, " +
-                "annee_creation = excluded.annee_creation, " +
-                "nom_stade = excluded.nom_stade";
+        String sql = """
+            insert into club (id_club, nom, acronyme, annee_creation, nom_stade)
+            values (?, ?, ?, ?, ?)
+            on conflict (id_club) DO update set
+            nom = excluded.nom,
+            acronyme = excluded.acronyme,
+            annee_creation = excluded.annee_creation,
+            nom_stade = excluded.nom_stade
+        """;
 
         try (Connection con = datasource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
