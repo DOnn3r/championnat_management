@@ -20,4 +20,8 @@ public class ClubService {
             throw new NotFoundException(e.getMessage());
         }
     }
+
+    public List<Club> saveAllClubs(List<Club> clubs) {
+        return clubCRUDOperation.saveAll(clubs);
+    }
 }
