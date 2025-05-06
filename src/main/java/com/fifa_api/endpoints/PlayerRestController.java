@@ -36,9 +36,21 @@ public class PlayerRestController {
     }
 
     @PutMapping("/players")
-    public ResponseEntity<List<PlayerRest>> createOrUpdatePlayer(
+    public ResponseEntity<Object> createOrUpdatePlayer(
             @RequestBody List<CreateOrUpdatePlayer> createOrUpdatePlayers
     ) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (createOrUpdatePlayers == null || createOrUpdatePlayers.isEmpty()) {
+            return ResponseEntity.badRequest().body("Player list cannot be empty");
+        }
+
+        List<Player> players = createOrUpdatePlayers.stream()
+                .map(playerRestMapper::toModel)
+                .toList();
+
+        List<PlayerRest> savedPlayers = playerService.saveAllPlayer(players).stream()
+                .map(playerRestMapper::toRest)
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.OK).body(savedPlayers);
     }
 }
